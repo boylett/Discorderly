@@ -293,6 +293,32 @@
 		}
 
 		/**
+		 * Create a new invite object for the channel. Only usable for guild channels. Requires the CREATE_INSTANT_INVITE permission. All JSON parameters for this route are optional, however the request body is not. If you are not sending any fields, you still have to send an empty JSON object ({})
+		 * @param  int                          $max_age               Duration of invite in seconds before expiry, or 0 for never. between 0 and 604800 (7 days)	86400 (24 hours)
+		 * @param  int                          $max_uses              Max number of uses or 0 for unlimited. between 0 and 100	0
+		 * @param  bool                         $temporary             Whether this invite only grants temporary membership	false
+		 * @param  bool                         $unique                If true, don't try to reuse a similar invite (useful for creating many unique one time use invites)	false
+		 * @param  int                          $target_type           The type of target for this voice channel invite	
+		 * @param  int                          $target_user_id        The id of the user whose stream to display for this invite, required if target_type is 1, the user must be streaming in the channel	
+		 * @param  int                          $target_application_id The id of the embedded application to open for this invite, required if target_type is 2, the ap
+		 * @return \Discorderly\Resource\Invite
+		 */
+		public function createInvite(...$arguments) : \Discorderly\Resource\Invite {
+			$invite = $this->parent->request(
+				endpoint:   \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . $this->id . "/invites",
+				type:       "post",
+				data:       $arguments,
+
+				/**
+				 * @link https://discord.com/developers/docs/resources/channel#get-channel-invites
+				 */
+				send_empty: true,
+			);
+
+			return $this->parent->Invite($invite["code"])->__populate($invite);
+		}
+
+		/**
 		 * Creates a new thread
 		 * @param  int                           $message_id            Message ID to connect the thread to
 		 * @param  string                        $name                  1-100 character channel name
@@ -369,6 +395,19 @@
 			}
 
 			return $this;
+		}
+
+		/**
+		 * Returns a list of invite objects (with invite metadata) for the channel
+		 * @return array
+		 */
+		public function getInvites() : array {
+			$invites = $this->parent->request(
+				endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . $this->id . "/invites",
+				type:     "get",
+			);
+
+			return \array_map(fn($invite) => $this->parent->Invite($invite["code"])->__populate($invite), $invites);
 		}
 
 		/**

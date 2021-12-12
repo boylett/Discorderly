@@ -9,6 +9,11 @@
 		const endpoint = "https://discord.com/api";
 
 		/**
+		 * @var string Vanity URL endpoint
+		 */
+		const VANITY_URL_ENDPOINT = "https://discord.gg";
+
+		/**
 		 * Custom Emoji (PNG, JPEG, WebP, GIF)
 		 * @var string
 		 */
@@ -229,9 +234,10 @@
 		public function request(...$arguments) : array {
 			\extract($arguments);
 
-			$data     ??= [];
-			$response   = [];
-			$type       = \strtoupper($type ?? "get");
+			$data       ??= [];
+			$response     = [];
+			$send_empty ??= false;
+			$type         = \strtoupper($type ?? "get");
 
 			if (!isset($endpoint)) {
 				throw new \Discorderly\Response\Exception("Endpoint (endpoint) not defined in " . \get_called_class());
@@ -305,7 +311,7 @@
 
 					unset($data["files"]);
 
-					if (!empty($data)) {
+					if (!empty($data) or $send_empty) {
 						$options["multipart"][] = [
 							"name"     => "payload_json",
 							"contents" => \json_encode($data),
@@ -331,7 +337,7 @@
 					$options["headers"]["Accept"]       = "application/json; charset=utf-8";
 					$options["headers"]["Content-Type"] = "application/json; charset=utf-8";
 
-					if (!empty($data)) {
+					if (!empty($data) or $send_empty) {
 						$options["json"] = $data;
 					}
 				}
@@ -345,6 +351,10 @@
 			if (\json_last_error() === JSON_ERROR_NONE) {
 				if (isset($json["message"]) and isset($json["code"])) {
 					throw new \Discorderly\Response\Exception(\ucwords($type) . " failed for '" . $endpoint . "' with Error Code " . $json["code"] . " in " . \get_called_class() . ":\n" . $json["message"], $json["code"]);
+				}
+
+				else if (\count($json) === 1 and isset($json["_misc"])) {
+					throw new \Discorderly\Response\Exception(\ucwords($type) . " failed for '" . $endpoint . "' with HTTP " . $request->getStatusCode() . " in " . \get_called_class() . ":\n" . \print_r($json["_misc"], true));
 				}
 
 				return $json;
@@ -473,6 +483,24 @@
 			return \Discorderly\Resource\Guild::__instance(
 				parent: $this,
 				id:     $guild_id,
+			);
+		}
+
+		/**
+		 * Get a Invite instance
+		 * @param  string                       $invite_code The Invite ID
+		 * @return \Discorderly\Resource\Invite
+		 */
+		public function Invite(string $invite_code = "") : \Discorderly\Resource\Invite {
+			if ($invite_code === "") {
+				return \Discorderly\Resource\Invite::__instance(
+					parent: $this,
+				);
+			}
+
+			return \Discorderly\Resource\Invite::__instance(
+				parent: $this,
+				code:   $invite_code,
 			);
 		}
 

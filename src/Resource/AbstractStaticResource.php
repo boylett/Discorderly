@@ -133,8 +133,57 @@
 		public function __serialize() : array {
 			$properties = (array) $this;
 
-			unset($properties["endpoint"], $properties["parent"]);
+			unset($properties["parent"]);
 
 			return $properties;
+		}
+
+		/**
+		 * Recursively convert this instance to an array
+		 * @return array
+		 */
+		public function __toArray() : array {
+			$array = [];
+
+			foreach (\get_object_vars($this) as $property => $value) {
+				if ($value instanceof static) {
+					$value = $value->__toArray();
+				}
+
+				else if ($value instanceof \DateTime) {
+					$value = $value->format("Y-m-d\TH:i:s\.uP");
+				}
+
+				else if (\is_object($value)) {
+					$value = \json_decode(\json_encode($value), true);
+				}
+
+				$array[$property] = $value;
+			}
+
+			unset($array["dirty"], $array["endpoint"], $array["parent"]);
+
+			return $array;
+		}
+
+		/**
+		 * Export this object as an array
+		 * @param  array|NULL $keys Which properties to export
+		 * @return array
+		 */
+		public function export(array|NULL $keys = NULL) : array {
+			$array = $this->__toArray();
+
+			if ($keys !== NULL) {
+				$export = [];
+
+				foreach ($keys as $property) {
+					$export[$property] = $array[$property];
+				}
+
+				return $export;
+			}
+
+			return $array;
 		}
 	}

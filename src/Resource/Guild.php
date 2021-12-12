@@ -328,6 +328,12 @@
 		public NULL|\Discorderly\Resource\GuildPreview $preview = NULL;
 
 		/**
+		 * Vanity URL for the guild
+		 * @var string
+		 */
+		public string $vanity_url;
+
+		/**
 		 * Recursively populate this instance with a data set
 		 * @param  array $properties Instance data
 		 * @return self
@@ -476,6 +482,19 @@
 		}
 
 		/**
+		 * Returns a list of invite objects (with invite metadata) for the guild
+		 * @return array
+		 */
+		public function getInvites() : array {
+			$invites = $this->parent->request(
+				endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . $this->id . "/invites",
+				type:     "get",
+			);
+
+			return \array_map(fn($invite) => $this->parent->Invite($invite["code"])->__populate($invite), $invites);
+		}
+
+		/**
 		 * Returns the guild preview object for the given id. If the user is not in the guild, then the guild must be lurkable (it must be Discoverable or have a live public stage)
 		 * @return \Discorderly\Resource\GuildPreview
 		 */
@@ -597,5 +616,22 @@
 			}
 
 			return false;
+		}
+
+		/**
+		 * Returns a partial invite object for guilds with that feature enabled
+		 * @return string
+		 */
+		public function getVanityUrl() : string {
+			if (!isset($this->vanity_url)) {
+				$invite = $this->parent->request(
+					endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . $this->id . "/vanity-url",
+					type:     "get",
+				);
+
+				$this->vanity_url = \Discorderly\Discorderly::VANITY_URL_ENDPOINT . "/" . $invite["code"];
+			}
+
+			return $this->vanity_url;
 		}
 	}

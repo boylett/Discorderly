@@ -2,7 +2,7 @@
 
 	require_once __DIR__ . "/../vendor/autoload.php";
 
-	$config  = include __DIR__ . "config.php";
+	$config  = include __DIR__ . "/config.php";
 	$discord = new \Discorderly\Discorderly();
 
 	$discord->connect(
