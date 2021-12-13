@@ -3,32 +3,75 @@
 	namespace Discorderly\Resource;
 
 	class Bot extends \Discorderly\Resource\User {
-		public function getAuthorizationURL(...$arguments) : string {
+		/**
+		 * Get the Bot Installation URL
+		 * @param  array|string $scope                An array or space-separated list of OAuth2 scopes (see constants in \Discorderly\Response\AccessToken)
+		 * @param  int          $permissions          The permissions you're requesting - defaults to 8 (https://discordapi.com/permissions.html)
+		 * @param  int          $guild_id             Pre-fills the dropdown picker with a guild for the user
+		 * @param  bool         $disable_guild_select Disallows the user from changing the guild dropdown
+		 * @return string                             Bot Installation URL
+		 */
+		public function getOAuthUrl(...$arguments) : string {
 			if (!isset($this->parent->authorization["client_id"])) {
-				throw new \Discorderly\Response\Exception("You must supply a Client/Application ID (client_id) during \\Discorderly::connect() when using " . \get_called_class() . "::getAuthorizationURL()");
+				throw new \Discorderly\Response\Exception("You must supply a Client/Application ID (client_id) during \\Discorderly::connect() when using " . \get_called_class() . "::getOAuthUrl()");
 			}
 
-			if (!isset($arguments["guild_id"])) {
-				throw new \Discorderly\Response\Exception("You must supply a Guild ID (guild_id) when using " . \get_called_class() . "::getAuthorizationURL()");
+			if (empty($arguments["scope"] ?? "")) {
+				$arguments["scope"] = \Discorderly\Resource\AccessToken::SCOPE_BOT;
 			}
 
-			if (!isset($arguments["scope"])) {
-				$arguments["scope"] = "bot";
+			else if (\is_array($arguments["scope"] ?? "")) {
+				$arguments["scope"] = \implode(" ", \array_unique(\array_merge($arguments["scope"]), [ \Discorderly\Resource\AccessToken::SCOPE_BOT ]));
 			}
 
-			else {
-				if (\is_array($arguments["scope"] ?? "")) {
-					$arguments["scope"] = \implode(" ", \array_unique(\array_merge($arguments["scope"]), [ "bot" ]));
-				}
-
-				else if (!\str_contains($arguments["scope"] ?? "", "bot")) {
-					$arguments["scope"] .= " bot";
-				}
+			else if (!\str_contains($arguments["scope"] ?? "", \Discorderly\Resource\AccessToken::SCOPE_BOT)) {
+				$arguments["scope"] .= " " . \Discorderly\Resource\AccessToken::SCOPE_BOT;
 			}
 
-			return "https://discord.com/api/oauth2/authorize?" . \http_build_query(\array_merge($arguments, [
+			return "https://discord.com/api/oauth2/authorize?" . \http_build_query(\array_merge([
+				"permissions" => 8,
+			], $arguments, [
 				"client_id"   => $this->parent->authorization["client_id"],
-				"scope"       => \trim($arguments["scope"]),
 			]));
+		}
+
+		public function requestOAuthToken(array|string $scope = "") : \Discorderly\Resource\AccessToken {
+			if (!isset($this->parent->authorization["client_id"])) {
+				throw new \Discorderly\Response\Exception("You must supply a Client/Application ID (client_id) during \\Discorderly::connect() when using " . \get_called_class() . "::getOAuthUrl()");
+			}
+
+			if (!isset($this->parent->authorization["client_secret"])) {
+				throw new \Discorderly\Response\Exception("You must supply a Client Secret (client_secret) during \\Discorderly::connect() when using " . \get_called_class() . "::getOAuthUrl()");
+			}
+
+			if (empty($scope ?? "")) {
+				$scope = \Discorderly\Resource\AccessToken::SCOPE_IDENTIFY;
+			}
+
+			else if (\is_array($scope ?? "")) {
+				$scope = \implode(" ", \array_unique(\array_merge($scope), [ \Discorderly\Resource\AccessToken::SCOPE_IDENTIFY ]));
+			}
+
+			else if (!\str_contains($scope ?? "", \Discorderly\Resource\AccessToken::SCOPE_IDENTIFY)) {
+				$scope .= " " . \Discorderly\Resource\AccessToken::SCOPE_IDENTIFY;
+			}
+
+			$token = $this->parent->request(
+				authorization: false,
+				endpoint:      \Discorderly\Discorderly::endpoint . "/oauth2/token",
+				type:          "post",
+				options:       [
+					"auth" => [
+						$this->parent->authorization["client_id"],
+						$this->parent->authorization["client_secret"],
+					],
+				],
+				form_params:   [
+					"scope"      => $scope,
+					"grant_type" => "client_credentials",
+				],
+			);
+
+			return \Discorderly\Resource\AccessToken::__instance()->__populate($token);
 		}
 	}

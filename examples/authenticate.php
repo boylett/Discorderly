@@ -6,9 +6,11 @@
 	$discord = new \Discorderly\Discorderly();
 
 	$discord->connect(
-		type:      "bot",
-		client_id: $config["client_id"],
-		bot_token: $config["bot_token"],
+		type:          "bot",
+		bot_token:     $config["bot_token"],
+		client_id:     $config["client_id"],
+		client_secret: $config["client_secret"],
+		public_key:    $config["public_key"],
 	);
 
-	\var_dump($discord->User()->getGuilds());
+	\var_dump($discord->Application()->get());

@@ -235,6 +235,7 @@
 			\extract($arguments);
 
 			$data       ??= [];
+			$options    ??= [];
 			$response     = [];
 			$send_empty ??= false;
 			$type         = \strtoupper($type ?? "get");
@@ -267,20 +268,26 @@
 				$endpoint .= \str_contains($endpoint, "?") ? "&" : "?";
 				$endpoint .= \http_build_query($data);
 
-				$data = NULL;
+				unset($data);
 			}
 
-			$options = [
-				"headers" => [
-					"Authorization" => match($this->authorization["type"] ?? false) {
-						"bot"   => "Bot "    . $this->authorization["bot_token"],
-						"oauth" => "Bearer " . $this->authorization["access_token"],
-						default => "",
-					},
-				],
-			];
+			if ($authorization ?? true) {
+				$options = [
+					"headers" => [
+						"Authorization" => match($this->authorization["type"] ?? false) {
+							"bot"   => "Bot "    . $this->authorization["bot_token"],
+							"oauth" => "Bearer " . $this->authorization["access_token"],
+							default => "",
+						},
+					],
+				];
+			}
 
-			if (isset($data)) {
+			if (isset($arguments["form_params"])) {
+				$options["form_params"] = $form_params;
+			}
+
+			else if (isset($arguments["data"])) {
 				if (isset($data["file"])) {
 					$file = $data["file"];
 
@@ -334,8 +341,9 @@
 				}
 
 				else {
-					$options["headers"]["Accept"]       = "application/json; charset=utf-8";
-					$options["headers"]["Content-Type"] = "application/json; charset=utf-8";
+					if (!isset($options["headers"]["Content-Type"])) {
+						$options["headers"]["Content-Type"] = "application/json; charset=utf-8";
+					}
 
 					if (!empty($data) or $send_empty) {
 						$options["json"] = $data;
@@ -349,12 +357,16 @@
 			$json = @\json_decode(\trim($request->getBody()) ?: "[]", true);
 
 			if (\json_last_error() === JSON_ERROR_NONE) {
-				if (isset($json["message"]) and isset($json["code"])) {
-					throw new \Discorderly\Response\Exception(\ucwords($type) . " failed for '" . $endpoint . "' with Error Code " . $json["code"] . " in " . \get_called_class() . ":\n" . $json["message"], $json["code"]);
+				if (isset($json["error"]) or isset($json["error_description"])) {
+					throw new \Discorderly\Response\Exception(\ucwords($type) . " failed for '" . $endpoint . "' with Error Code " . $json["error"] . " in " . \get_called_class() . (($json["error_description"] ?? false) ? ":\n" . $json["error_description"] : "") . "\n" . \print_r($options, true));
+				}
+
+				else if (isset($json["message"]) and isset($json["code"])) {
+					throw new \Discorderly\Response\Exception(\ucwords($type) . " failed for '" . $endpoint . "' with Error Code " . $json["code"] . " in " . \get_called_class() . ":\n" . $json["message"] . "\n" . \print_r($options, true), $json["code"]);
 				}
 
 				else if (\count($json) === 1 and isset($json["_misc"])) {
-					throw new \Discorderly\Response\Exception(\ucwords($type) . " failed for '" . $endpoint . "' with HTTP " . $request->getStatusCode() . " in " . \get_called_class() . ":\n" . \print_r($json["_misc"], true));
+					throw new \Discorderly\Response\Exception(\ucwords($type) . " failed for '" . $endpoint . "' with HTTP " . $request->getStatusCode() . " in " . \get_called_class() . ":\n" . \print_r($json["_misc"], true) . "\n" . \print_r($options, true));
 				}
 
 				return $json;
