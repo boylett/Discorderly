@@ -16,7 +16,8 @@
     "minimum-stability": "stable",
     "require": {
         "php-64bit": ">=8.0",
-        "symfony/polyfill-php81": "^1.23",
-        "guzzlehttp/guzzle": "^7.0"
+        "guzzlehttp/guzzle": "^7.0",
+        "paragonie/sodium_compat": "^1.17",
+        "symfony/polyfill-php81": "^1.23"
     }
 }

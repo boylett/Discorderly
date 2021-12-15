@@ -235,13 +235,15 @@
 			$timestamp    = $_HEADERS["X-Signature-Timestamp"] ?? "";
 
 			if ($signature and $timestamp) {
-				$binary_signature = \sodium_hex2bin($signature);
-				$binary_key       = \sodium_hex2bin($this->parent->authorization["public_key"]);
+				$binary_signature = \function_exists("sodium_hex2bin") ? \sodium_hex2bin($signature) : \hex2bin($signature);
+				$binary_key       = \function_exists("sodium_hex2bin") ? \sodium_hex2bin($this->parent->authorization["public_key"]) : \hex2bin($this->parent->authorization["public_key"]);
 
 				$body    = \file_get_contents("php://input");
 				$message = $timestamp . $body;
 
-				if (!\sodium_crypto_sign_verify_detached($binary_signature, $message, $binary_key)) {
+				$verified = \function_exists("sodium_crypto_sign_verify_detached") ? \sodium_crypto_sign_verify_detached($binary_signature, $message, $binary_key) : \crypto_sign_verify_detached($binary_signature, $message, $binary_key);
+
+				if (!$verified) {
 					\header("HTTP/1.0 401 Unauthorized");
 
 					throw new \Discorderly\Response\Exception("Discorderly webhook interaction failed authorization (401 Unauthorized)");
