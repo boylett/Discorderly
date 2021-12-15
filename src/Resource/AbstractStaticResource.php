@@ -31,17 +31,7 @@
 			$class = \get_called_class();
 
 			if (!empty($arguments) or (\count($arguments) === 1 and isset($arguments["parent"]))) {
-				$contenders = [];
-
-				foreach (static::$discorderly_instance_cache[$class] ?? [] as $instance) {
-					foreach ($arguments as $key => $value) {
-						if (!isset($instance->{$key}) or $instance->{$key} !== $value) {
-							continue 2;
-						}
-					}
-
-					$contenders[] = $instance;
-				}
+				$contenders = \Discorderly\Discorderly::array_find(static::$discorderly_instance_cache[$class] ?? [], $arguments);
 
 				if (!empty($contenders)) {
 					return \reset($contenders);
@@ -131,39 +121,49 @@
 		 * @return array
 		 */
 		public function __serialize() : array {
-			$properties = (array) $this;
-
-			unset($properties["parent"]);
-
-			return $properties;
+			return $this->__toArray(true);
 		}
 
 		/**
 		 * Recursively convert this instance to an array
+		 * @param  bool  $is_serializing Whether we are normalizing this array for serialization
 		 * @return array
 		 */
-		public function __toArray() : array {
+		public function __toArray(bool $is_serializing = false) : array {
 			$array = [];
 
 			foreach (\get_object_vars($this) as $property => $value) {
-				if ($value instanceof static) {
-					$value = $value->__toArray();
+				if (!$is_serializing) {
+					if ($value instanceof static) {
+						$value = $value->__toArray();
+					}
+
+					if ($value instanceof \DateTime) {
+						$value = $value->format("Y-m-d\TH:i:s\.uP");
+					}
+
+					else if (\is_object($value)) {
+						$value = \json_decode(\json_encode($value), true);
+					}
 				}
 
-				else if ($value instanceof \DateTime) {
-					$value = $value->format("Y-m-d\TH:i:s\.uP");
+				if (!\in_array($property, [
+					"dirty",
+					"endpoint",
+					"parent",
+				])) {
+					$array[$property] = $value;
 				}
-
-				else if (\is_object($value)) {
-					$value = \json_decode(\json_encode($value), true);
-				}
-
-				$array[$property] = $value;
 			}
 
-			unset($array["dirty"], $array["endpoint"], $array["parent"]);
-
 			return $array;
+		}
+
+		/**
+		 * Clear the instance cache
+		 */
+		public static function clearCache() {
+			static::$discorderly_instance_cache = [];
 		}
 
 		/**

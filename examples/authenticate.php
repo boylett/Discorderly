@@ -13,4 +13,4 @@
 		public_key:    $config["public_key"],
 	);
 
-	\var_dump($discord->Application()->get());
+	\var_dump($discord->User()->getGuilds());

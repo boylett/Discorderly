@@ -441,17 +441,38 @@
 		}
 
 		/**
-		 * Returns an emoji object for the given guild and emoji ID
-		 * @param  int                         $emoji_id Emoji ID
-		 * @return \Discorderly\Resource\Emoji           Emoji object
+		 * Search for a channel
+		 * @param  array                              ...$arguments Search filters
+		 * @return NULL|\Discorderly\Resource\Channel               Matching channel object or NULL
 		 */
-		public function getEmoji(int $emoji_id) : \Discorderly\Resource\Emoji {
-			$emoji = $this->parent->request(
-				endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . $this->id . "/emojis/" . $emoji_id,
-				type:     "get",
-			);
+		public function getChannel(...$arguments) : NULL|\Discorderly\Resource\Channel {
+			$channels = \Discorderly\Discorderly::array_find($this->getChannels(), $arguments);
 
-			return $this->parent->Emoji($emoji["id"])->__populate($emoji);
+			return \reset($channels) ?: NULL;
+		}
+
+		/**
+		 * Search for an emoji
+		 * @param  array|int                   ...$arguments|$emoji_id Emoji ID or search filters
+		 * @return \Discorderly\Resource\Emoji                         Emoji object
+		 */
+		public function getEmoji(...$arguments) : NULL|\Discorderly\Resource\Emoji {
+			if (\count($arguments) === 1 and (isset($arguments["id"]) or \array_keys($arguments) === [0])) {
+				$emoji = $this->parent->request(
+					endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . $this->id . "/emojis/" . ($arguments["id"] ?? $arguments[0]),
+					type:     "get",
+				);
+				
+				return $this->parent->Emoji($emoji["id"])->__populate($emoji);
+			}
+
+			else {
+				$emojis = \Discorderly\Discorderly::array_find($this->getEmojis(), $arguments);
+
+				return \reset($emojis) ?: NULL;
+			}
+
+			return NULL;
 		}
 
 		/**
@@ -513,6 +534,28 @@
 			}
 
 			return $this->preview;
+		}
+
+		/**
+		 * Search for a role
+		 * @param  array                           ...$arguments Search filters
+		 * @return NULL|\Discorderly\Resource\Role               Matching role object or NULL
+		 */
+		public function getRole(...$arguments) : NULL|\Discorderly\Resource\Role {
+			$roles = \Discorderly\Discorderly::array_find($this->getRoles(), $arguments);
+
+			return \reset($roles) ?: NULL;
+		}
+
+		/**
+		 * Search for a sticker
+		 * @param  array                              ...$arguments Search filters
+		 * @return NULL|\Discorderly\Resource\Sticker               Matching sticker object or NULL
+		 */
+		public function getSticker(...$arguments) : NULL|\Discorderly\Resource\Sticker {
+			$stickers = \Discorderly\Discorderly::array_find($this->getStickers(), $arguments);
+
+			return \reset($stickers) ?: NULL;
 		}
 
 		/**

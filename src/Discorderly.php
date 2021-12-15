@@ -146,6 +146,51 @@
 		private static array $users = [];
 
 		/**
+		 * Adopt an instance
+		 * @param  \Discorderly\Resource\AbstractStaticResource $resource Resource to adopt
+		 * @return \Discorderly\Resource\AbstractStaticResource
+		 */
+		public function adopt(\Discorderly\Resource\AbstractStaticResource $child) : \Discorderly\Resource\AbstractStaticResource {
+			$child->parent = $this;
+
+			return $child;
+		}
+
+		/**
+		 * Search an array for matching objects
+		 * @param  array $array   List of objects
+		 * @param  array $filters Object filters
+		 * @return array          Matching objects
+		 */
+		public static function array_find(array $array, array $filters) : array {
+			$contenders = [];
+
+			foreach ($array as $item) {
+				if (\is_object($item)) {
+					foreach ($filters as $key => $value) {
+						if (!isset($item->{$key})) {
+							continue 2;
+						}
+
+						else if (\is_string($item->{$key}) and \is_string($value) and \preg_match("/^(\/|#|~|\(|\[|{)([\s\S]+?)(\/|#|~|\)|\]|})([imsxUXJ]+)?$/m", $value)) {
+							if (!\preg_match($value, $item->{$key})) {
+								continue 2;
+							}
+						}
+
+						else if ($item->{$key} !== $value) {
+							continue 2;
+						}
+					}
+
+					$contenders[] = $item;
+				}
+			}
+
+			return $contenders;
+		}
+
+		/**
 		 * Create a base64 encoded data string for a file
 		 * @param  string $filename Absolute path to the file
 		 * @return string           Base64 data
@@ -488,15 +533,15 @@
 
 			if (\json_last_error() === JSON_ERROR_NONE) {
 				if (isset($json["error"]) or isset($json["error_description"])) {
-					throw new \Discorderly\Response\Exception(\ucwords($type) . " failed for '" . $endpoint . "' with Error Code " . $json["error"] . " in " . \get_called_class() . (($json["error_description"] ?? false) ? ":\n" . $json["error_description"] : "") . "\n" . \print_r($options, true));
+					throw new \Discorderly\Response\Exception(\ucwords($type) . " failed for '" . $endpoint . "' with Error Code " . $json["error"] . " in " . \get_called_class() . (($json["error_description"] ?? false) ? ":\n" . $json["error_description"] : ""));
 				}
 
 				else if (isset($json["message"]) and isset($json["code"])) {
-					throw new \Discorderly\Response\Exception(\ucwords($type) . " failed for '" . $endpoint . "' with Error Code " . $json["code"] . " in " . \get_called_class() . ":\n" . $json["message"] . "\n" . \print_r($options, true), $json["code"]);
+					throw new \Discorderly\Response\Exception(\ucwords($type) . " failed for '" . $endpoint . "' with Error Code " . $json["code"] . " in " . \get_called_class() . ":\n" . $json["message"], $json["code"]);
 				}
 
 				else if (\count($json) === 1 and isset($json["_misc"])) {
-					throw new \Discorderly\Response\Exception(\ucwords($type) . " failed for '" . $endpoint . "' with HTTP " . $request->getStatusCode() . " in " . \get_called_class() . ":\n" . \print_r($json["_misc"], true) . "\n" . \print_r($options, true));
+					throw new \Discorderly\Response\Exception(\ucwords($type) . " failed for '" . $endpoint . "' with HTTP " . $request->getStatusCode() . " in " . \get_called_class() . ":\n" . \print_r($json["_misc"], true));
 				}
 
 				return $json;
