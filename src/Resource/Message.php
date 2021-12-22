@@ -423,6 +423,40 @@
 		}
 
 		/**
+		 * Creates a new emoji reaction
+		 * @param  string                        $emoji_name Emoji character or name of custom emoji
+		 * @param  int                           $emoji_id   Custom emoji ID
+		 * @return \Discorderly\Resource\Message             Message object
+		 */
+		public function createReaction(...$arguments) : \Discorderly\Resource\Message {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
+			\extract($arguments);
+
+			$emoji_id   ??= 0;
+			$emoji_name ??= "";
+
+			if (!empty($emoji_name)) {
+				if ($emoji_id) {
+					$emoji = \sprintf("%s:%d", $emoji_name, $emoji_id);
+				}
+
+				else {
+					$emoji = \urlencode($emoji_name);
+				}
+
+				$this->parent->request(
+					endpoint: \Discorderly\Discorderly::endpoint . \strtr($this->endpoint, [ ":channel_id" => $this->channel_id ]) . "/" . $this->id . "/reactions/" . $emoji . "/@me",
+					type:     "put",
+				);
+			}
+
+			return $this;
+		}
+
+		/**
 		 * Creates a new reply message
 		 * @param  string                        $content           The message contents (up to 2000 characters)
 		 * @param  bool                          $tts               True if this is a TTS message
@@ -467,6 +501,83 @@
 		}
 
 		/**
+		 * Deletes an emoji reaction
+		 * @param  string                        $emoji_name Emoji character or name of custom emoji
+		 * @param  int                           $emoji_id   Custom emoji ID
+		 * @param  int                           $user_id    User ID
+		 * @return \Discorderly\Resource\Message             Message object
+		 */
+		public function deleteReaction(...$arguments) : \Discorderly\Resource\Message {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
+			\extract($arguments);
+
+			$emoji_id   ??= 0;
+			$emoji_name ??= "";
+			$user_id    ??= "@me";
+
+			if (!empty($emoji_name)) {
+				if ($emoji_id) {
+					$emoji = \sprintf("%s:%d", $emoji_name, $emoji_id);
+				}
+
+				else {
+					$emoji = \urlencode($emoji_name);
+				}
+
+				$this->parent->request(
+					endpoint: \Discorderly\Discorderly::endpoint . \strtr($this->endpoint, [ ":channel_id" => $this->channel_id ]) . "/" . $this->id . "/reactions/" . $emoji . "/" . $user_id,
+					type:     "delete",
+				);
+			}
+
+			return $this;
+		}
+
+		/**
+		 * Deletes all reactions
+		 * @param  string                        $emoji_name Emoji character or name of custom emoji
+		 * @param  int                           $emoji_id   Custom emoji ID
+		 * @return \Discorderly\Resource\Message             Message object
+		 */
+		public function deleteReactions(...$arguments) : \Discorderly\Resource\Message {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
+			\extract($arguments);
+
+			$emoji_id   ??= 0;
+			$emoji_name ??= "";
+
+			if (empty($emoji_name)) {
+				$this->parent->request(
+					endpoint: \Discorderly\Discorderly::endpoint . \strtr($this->endpoint, [ ":channel_id" => $this->channel_id ]) . "/" . $this->id . "/reactions",
+					type:     "delete",
+				);
+			}
+
+			else {
+				if ($emoji_id) {
+					$emoji = \sprintf("%s:%d", $emoji_name, $emoji_id);
+				}
+
+				else {
+					$emoji = \urlencode($emoji_name);
+				}
+
+				$this->parent->request(
+					endpoint: \Discorderly\Discorderly::endpoint . \strtr($this->endpoint, [ ":channel_id" => $this->channel_id ]) . "/" . $this->id . "/reactions/" . $emoji,
+					type:     "delete",
+				);
+			}
+
+			return $this;
+		}
+
+		/**
 		 * Get the instance's data
 		 * @param  string $endpoint     Relative path to Discord API endpoint
 		 * @param  array  ...$arguments Payload to send to the Discord API
@@ -479,6 +590,52 @@
 			($this->channel_id or ($arguments["channel_id"] ?? false)) ? [
 				"channel_id" => $this->channel_id ?: ($arguments["channel_id"] ?? 0),
 			] : []));
+		}
+
+		/**
+		 * Get reactions for a specific emoji
+		 * @param  string $emoji_name Emoji character or name of custom emoji
+		 * @param  int    $emoji_id   Custom emoji ID
+		 * @param  int    $after      Get users after this user ID
+		 * @param  int    $limit      Max number of users to return (1-100)
+		 * @return array              Array of User objects
+		 */
+		public function getReactions(...$arguments) : array {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
+			\extract($arguments);
+
+			$emoji_id   ??= 0;
+			$emoji_name ??= "";
+			$after      ??= 0;
+			$limit      ??= 25;
+			$reactions    = [];
+
+			if (!empty($emoji_name)) {
+				if ($emoji_id) {
+					$emoji = \sprintf("%s:%d", $emoji_name, $emoji_id);
+				}
+
+				else {
+					$emoji = \urlencode($emoji_name);
+				}
+
+				$reactions = $this->parent->request(
+					endpoint: \Discorderly\Discorderly::endpoint . \strtr($this->endpoint, [ ":channel_id" => $this->channel_id ]) . "/" . $this->id . "/reactions/" . $emoji,
+					type:     "get",
+					data:     \array_merge([
+						"limit" => $limit,
+					], $after ? [
+						"after" => $after,
+					] : []),
+				);
+
+				$reactions = \array_map(fn($reaction) => $this->parent->User($reaction["id"])->__populate($reaction), $reactions);
+			}
+
+			return $reactions;
 		}
 
 		/**
