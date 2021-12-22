@@ -46,13 +46,9 @@
 				data:     $arguments,
 			);
 
-			$object = new static(
-				parent: $this->parent,
-			);
+			$object = new static(parent: $this->parent);
 
-			$object->__populate($response);
-
-			return $object;
+			return $object->__populate($response);
 		}
 
 		/**
@@ -65,13 +61,9 @@
 				throw new \Discorderly\Response\OrphanedInstanceException();
 			}
 
-			if (empty($this->id ?? 0)) {
-				throw new \Discorderly\Response\Exception("You must supply a unique ID (id) when using " . \get_called_class() . "::__construct()");
-			}
-
 			try {
 				$this->parent->request(
-					endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . \rtrim(($arguments["endpoint"] ?? false) ?: "/" . $this->id, "/"),
+					endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . \rtrim(($arguments["endpoint"] ?? false) ?: (empty($this->id ?? 0) ? "" : ("/" . $this->id)), "/"),
 					type:     "delete",
 					data:     $arguments ?: NULL,
 				);

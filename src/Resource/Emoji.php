@@ -58,42 +58,6 @@
 		public NULL|bool $available = true;
 
 		/**
-		 * Create a new instance
-		 * @param  string $endpoint Relative path to Discord API endpoint
-		 * @return static           The new instance
-		 */
-		public function create(...$arguments) : static {
-			if (!isset($this->parent)) {
-				throw new \Discorderly\Response\OrphanedInstanceException();
-			}
-
-			$response = $this->parent->request(
-				endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint,
-				type:     "post",
-				data:     $arguments,
-			);
-
-			if (!isset($response["id"])) {
-				throw new \Discorderly\Response\Exception("Failed to create instance in " . \get_called_class() . "::create():\n" . \print_r($response, true));
-			}
-
-			return $this->parent->Emoji($response["id"])->__populate($response);
-		}
-
-		/**
-		 * Delete this instance
-		 * @return bool
-		 */
-		public function delete(...$arguments) : bool {
-			return \call_user_func_array("parent::delete", \array_merge($arguments, [
-				"endpoint" => "/" . $this->id,
-			],
-			($arguments["guild_id"] ?? false) ? [
-				"guild_id" => $arguments["guild_id"],
-			] : []));
-		}
-
-		/**
 		 * Get the instance's data
 		 * @param  string $endpoint     Relative path to Discord API endpoint
 		 * @param  array  ...$arguments Payload to send to the Discord API
@@ -102,10 +66,7 @@
 		public function get(...$arguments) : self {
 			return \call_user_func_array("parent::get", \array_merge($arguments, [
 				"endpoint" => "/" . $this->id,
-			],
-			($arguments["guild_id"] ?? false) ? [
-				"guild_id" => $arguments["guild_id"],
-			] : []));
+			]));
 		}
 
 		/**
@@ -117,6 +78,18 @@
 		}
 
 		/**
+		 * Get the emoji's full URL
+		 * @param  int    $size Image size
+		 * @return string       Emoji URL
+		 */
+		public function getUrl(int $size = 0) : string {
+			return \strtr(\Discorderly\Discorderly::CDN_ENDPOINT . \Discorderly\Discorderly::CDN_ENDPOINT_CUSTOM_EMOJI, [
+				":emoji_id" => $this->getId(),
+				":format"   => $this->getAnimated() ? "gif" : "png",
+			]) . ($size ? "?size=" . $size : "");
+		}
+
+		/**
 		 * Modify this instance
 		 * @param  string $endpoint     Relative path to Discord API endpoint
 		 * @param  array  ...$arguments Payload to send to the Discord API
@@ -125,9 +98,6 @@
 		public function modify(...$arguments) : self {
 			return \call_user_func_array("parent::modify", \array_merge($arguments, [
 				"endpoint" => "/" . $this->id,
-			],
-			($arguments["guild_id"] ?? false) ? [
-				"guild_id" => $arguments["guild_id"],
-			] : []));
+			]));
 		}
 	}

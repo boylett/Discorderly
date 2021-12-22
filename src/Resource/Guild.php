@@ -407,6 +407,33 @@
 		}
 
 		/**
+		 * Adds a role to a guild member. Requires the MANAGE_ROLES permission. Returns a 204 empty response on success. Fires a Guild Member Update Gateway event
+		 * @param  int    $user_id User ID
+		 * @param  string $role_id Role ID
+		 * @return self
+		 */
+		public function addMemberRole(...$arguments) : self {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
+			if (empty($arguments["user_id"] ?? 0)) {
+				throw new \Discorderly\Response\Exception("You must supply a User ID (user_id) when using " . \get_called_class() . "::addMember()");
+			}
+
+			if (empty($arguments["role_id"] ?? 0)) {
+				throw new \Discorderly\Response\Exception("You must supply a Role ID (role_id) when using " . \get_called_class() . "::addMember()");
+			}
+
+			$this->parent->request(
+				endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . $this->id . "/members/" . $arguments["user_id"] . "/roles/" . $arguments["role_id"],
+				type:     "put",
+			);
+
+			return $this;
+		}
+
+		/**
 		 * Create a new instance
 		 * @param  string $endpoint Relative path to Discord API endpoint
 		 * @return static           The new instance
@@ -433,6 +460,57 @@
 			return parent::get(
 				endpoint: "/" . $this->id
 			);
+		}
+
+		/**
+		 * Returns a ban object for the given user or a 404 not found if the ban cannot be found. Requires the BAN_MEMBERS permission.
+		 * @param  int                       $user_id User ID
+		 * @return \Discorderly\Resource\Ban          Ban object
+		 */
+		public function getBan(int $user_id) : \Discorderly\Resource\Ban {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
+			if (empty($this->id ?? 0)) {
+				throw new \Discorderly\Response\Exception("You must supply a Guild ID (id) when using " . \get_called_class() . "::__construct()");
+			}
+
+			$ban = $this->parent->request(
+				endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . $this->id . "/bans/" . $user_id,
+				type:     "get",
+			);
+
+			return $this->parent->Ban()->__populate(\array_merge($ban, [
+				"guild_id" => $this->id,
+			]));
+		}
+
+		/**
+		 * Returns a list of ban objects for the users banned from this guild. Requires the BAN_MEMBERS permission
+		 * @return array Array of Ban objects
+		 */
+		public function getBans() : array {
+			if (empty($this->id ?? 0)) {
+				throw new \Discorderly\Response\Exception("You must supply a Guild ID (id) when using " . \get_called_class() . "::__construct()");
+			}
+
+			if (empty($this->bans ?? [])) {
+				if (!isset($this->parent)) {
+					throw new \Discorderly\Response\OrphanedInstanceException();
+				}
+
+				$bans = $this->parent->request(
+					endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . $this->id . "/bans",
+					type:     "get",
+				);
+
+				$this->bans = \array_map(fn($ban) => $this->parent->Ban()->__populate(\array_merge($ban, [
+					"guild_id" => $this->id,
+				])), $bans);
+			}
+
+			return $this->bans;
 		}
 
 		/**
@@ -731,6 +809,33 @@
 			}
 
 			return false;
+		}
+
+		/**
+		 * Removes a role from a guild member. Requires the MANAGE_ROLES permission. Returns a 204 empty response on success. Fires a Guild Member Update Gateway event
+		 * @param  int    $user_id User ID
+		 * @param  string $role_id Role ID
+		 * @return self
+		 */
+		public function removeMemberRole(...$arguments) : self {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
+			if (empty($arguments["user_id"] ?? 0)) {
+				throw new \Discorderly\Response\Exception("You must supply a User ID (user_id) when using " . \get_called_class() . "::addMember()");
+			}
+
+			if (empty($arguments["role_id"] ?? 0)) {
+				throw new \Discorderly\Response\Exception("You must supply a Role ID (role_id) when using " . \get_called_class() . "::addMember()");
+			}
+
+			$this->parent->request(
+				endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . $this->id . "/members/" . $arguments["user_id"] . "/roles/" . $arguments["role_id"],
+				type:     "delete",
+			);
+
+			return $this;
 		}
 
 		/**

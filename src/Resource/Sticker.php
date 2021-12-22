@@ -163,6 +163,22 @@
 		}
 
 		/**
+		 * Get the sticker's full URL
+		 * @param  int    $size Image size
+		 * @return string       Sticker URL
+		 */
+		public function getUrl(int $size = 320) : string {
+			return \strtr(\Discorderly\Discorderly::CDN_ENDPOINT . \Discorderly\Discorderly::CDN_ENDPOINT_STICKER, [
+				":sticker_id" => $this->getId(),
+				":format"     => match ($this->getFormatType()) {
+					static::STICKER_FORMAT_APNG   => "apng",
+					static::STICKER_FORMAT_LOTTIE => "json",
+					default                       => "png",
+				},
+			]) . "?size=" . $size;
+		}
+
+		/**
 		 * Modify this instance
 		 * @param  string $endpoint     Relative path to Discord API endpoint
 		 * @param  array  ...$arguments Payload to send to the Discord API

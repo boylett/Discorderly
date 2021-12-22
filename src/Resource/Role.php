@@ -2,7 +2,13 @@
 
 	namespace Discorderly\Resource;
 
-	class Role extends \Discorderly\Resource\AbstractStaticResource {
+	class Role extends \Discorderly\Resource\AbstractResource {
+		/**
+		 * API endpoint path
+		 * @var string
+		 */
+		public string $endpoint = "/guilds/:guild_id/roles";
+
 		/**
 		 * Role id
 		 * @var int
@@ -68,4 +74,16 @@
 		 * @var array
 		 */
 		public NULL|array $tags = [];
+
+		/**
+		 * Modify this instance
+		 * @param  string $endpoint     Relative path to Discord API endpoint
+		 * @param  array  ...$arguments Payload to send to the Discord API
+		 * @return self                 The updated instance
+		 */
+		public function modify(...$arguments) : self {
+			return \call_user_func_array("parent::modify", \array_merge($arguments, [
+				"endpoint" => "/" . $this->id,
+			]));
+		}
 	}

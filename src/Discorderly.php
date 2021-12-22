@@ -467,7 +467,7 @@
 				$options["form_params"] = $form_params;
 			}
 
-			else if (isset($arguments["data"])) {
+			else if (!empty($data)) {
 				if (isset($data["file"])) {
 					$file = $data["file"];
 
@@ -648,6 +648,16 @@
 			}
 
 			return static::$application;
+		}
+
+		/**
+		 * Get a Ban instance
+		 * @return \Discorderly\Resource\Ban
+		 */
+		public function Ban() : \Discorderly\Resource\Ban {
+			return \Discorderly\Resource\Ban::__instance(
+				parent: $this,
+			);
 		}
 
 		/**
