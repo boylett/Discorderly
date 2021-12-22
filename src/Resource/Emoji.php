@@ -109,6 +109,14 @@
 		}
 
 		/**
+		 * Get the emoji's tag
+		 * @return string
+		 */
+		public function getTag(bool $animated = false) : string {
+			return "<" . ($this->getAnimated() ? "a" : "") . ":" . $this->getName() . ":" . $this->getId() . ">";
+		}
+
+		/**
 		 * Modify this instance
 		 * @param  string $endpoint     Relative path to Discord API endpoint
 		 * @param  array  ...$arguments Payload to send to the Discord API

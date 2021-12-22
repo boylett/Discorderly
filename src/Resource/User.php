@@ -232,6 +232,12 @@
 		public array $guilds = [];
 
 		/**
+		 * The current user's authorization information
+		 * @var array
+		 */
+		public NULL|array $authorization;
+
+		/**
 		 * Enforce supplication of a user ID when creating user instances
 		 */
 		public function __construct(...$arguments) {
@@ -263,10 +269,12 @@
 		}
 
 		/**
-		 * The current user's authorization information
-		 * @var array
+		 * Get the user's ping tag
+		 * @return string
 		 */
-		public NULL|array $authorization;
+		public function getTag() : string {
+			return "<@" . $this->getId() . ">";
+		}
 
 		/**
 		 * Get the current user's authorization information
