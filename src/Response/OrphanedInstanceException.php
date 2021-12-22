@@ -7,5 +7,5 @@
 		 * Error message
 		 * @var string
 		 */
-		protected $message = "You should not instantiate \\Discorderly\\Resource instances outside of the built-in \\Discorderly::<Resource>() methods";
+		protected $message = "Resource is missing its parent. Call \\Discorderly->adopt(\\Resource \$...) to adopt it first";
 	}

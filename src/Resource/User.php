@@ -263,6 +263,35 @@
 		}
 
 		/**
+		 * The current user's authorization information
+		 * @var array
+		 */
+		public NULL|array $authorization;
+
+		/**
+		 * Get the current user's authorization information
+		 * @return array Authorization information
+		 */
+		public function getAuthorizationInfo() : array {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
+			if (!isset($this->authorization)) {
+				$this->authorization = $this->parent->request(
+					endpoint: \Discorderly\Discorderly::endpoint . "/oauth2/@me",
+					type:     "get",
+				);
+
+				$this->authorization["application"] = $this->parent->Application($this->authorization["application"]["id"])->__populate($this->authorization["application"]);
+				$this->authorization["user"]        = \DateTime::createFromFormat("U", \strtotime($this->authorization["user"]));
+				$this->authorization["user"]        = $this->parent->User($this->authorization["user"]["id"])->__populate($this->authorization["user"]);
+			}
+
+			return $this->authorization;
+		}
+
+		/**
 		 * Modify this instance
 		 * @param  string $endpoint     Relative path to Discord API endpoint
 		 * @param  array  ...$arguments Payload to send to the Discord API
@@ -282,6 +311,10 @@
 		 * @return \Discorderly\Resource\DM
 		 */
 		public function createDM(int $user_id = 0, array $access_tokens = [], array $nicks = []) : array|\Discorderly\Resource\DM {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
 			$dm = $this->parent->request(
 				endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . ($this->is_me ? "@me" : $this->id) . "/channels",
 				type:     "post",
@@ -305,6 +338,10 @@
 		 * @return string                      Authorization URL
 		 */
 		public function getAuthorizationURL(...$arguments) : string {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
 			if (!isset($this->parent->authorization["client_id"], $this->parent->authorization["client_secret"])) {
 				throw new \Discorderly\Response\Exception("You must supply a Client/Application ID (client_id) and Client Secret (client_secret) during \\Discorderly::connect() when using " . \get_called_class() . "::getAuthorizationURL()");
 			}
@@ -342,6 +379,10 @@
 		 */
 		public function getConnections() : array {
 			if (!isset($this->connections)) {
+				if (!isset($this->parent)) {
+					throw new \Discorderly\Response\OrphanedInstanceException();
+				}
+
 				$connections = $this->parent->request(
 					endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . ($this->is_me ? "@me" : $this->id) . "/connections",
 					type:     "get",
@@ -362,6 +403,10 @@
 		 */
 		public function getGuilds(int $before = 0, int $after = 0, int $limit = 200) : array {
 			if (!isset($this->guilds[$before][$after][$limit])) {
+				if (!isset($this->parent)) {
+					throw new \Discorderly\Response\OrphanedInstanceException();
+				}
+
 				$guilds = $this->parent->request(
 					endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . $this->id . "/guilds",
 					type:     "get",
@@ -384,6 +429,10 @@
 		 * @return self
 		 */
 		public function leaveGuild(int $guild_id) : self {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
 			$this->parent->request(
 				endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . ($this->is_me ? "@me" : $this->id) . "/guilds/" . $guild_id,
 				type:     "delete",

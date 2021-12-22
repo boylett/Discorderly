@@ -98,6 +98,10 @@
 		 * @return bool
 		 */
 		public function delete(...$arguments) : bool {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
 			try {
 				$this->parent->request(
 					endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . $this->code,

@@ -14,106 +14,112 @@
 		const VANITY_URL_ENDPOINT = "https://discord.gg";
 
 		/**
+		 * Primary CDN endpoint
+		 * @var string
+		 */
+		const CDN_ENDPOINT = "https://cdn.discordapp.com";
+
+		/**
 		 * Custom Emoji (PNG, JPEG, WebP, GIF)
 		 * @var string
 		 */
-		const CDN_ENDPOINT_CUSTOM_EMOJI = "emojis/:emoji_id.:format";
+		const CDN_ENDPOINT_CUSTOM_EMOJI = "/emojis/:emoji_id.:format";
 		
 		/**
 		 * Guild Icon (PNG, JPEG, WebP, GIF)
 		 * @var string
 		 */
-		const CDN_ENDPOINT_GUILD_ICON = "icons/:guild_id/:guild_icon.:format";
+		const CDN_ENDPOINT_GUILD_ICON = "/icons/:guild_id/:guild_icon.:format";
 		
 		/**
 		 * Guild Splash (PNG, JPEG, WebP)
 		 * @var string
 		 */
-		const CDN_ENDPOINT_GUILD_SPLASH = "splashes/:guild_id/:guild_splash.:format";
+		const CDN_ENDPOINT_GUILD_SPLASH = "/splashes/:guild_id/:guild_splash.:format";
 		
 		/**
 		 * Guild Discovery Splash (PNG, JPEG, WebP)
 		 * @var string
 		 */
-		const CDN_ENDPOINT_GUILD_DISCOVERY_SPLASH = "discovery-splashes/:guild_id/:guild_discovery_splash.:format";
+		const CDN_ENDPOINT_GUILD_DISCOVERY_SPLASH = "/discovery-splashes/:guild_id/:guild_discovery_splash.:format";
 		
 		/**
 		 * Guild Banner (PNG, JPEG, WebP)
 		 * @var string
 		 */
-		const CDN_ENDPOINT_GUILD_BANNER = "banners/:guild_id/:guild_banner.:format";
+		const CDN_ENDPOINT_GUILD_BANNER = "/banners/:guild_id/:guild_banner.:format";
 		
 		/**
 		 * User Banner (PNG, JPEG, WebP, GIF)
 		 * @var string
 		 */
-		const CDN_ENDPOINT_USER_BANNER = "banners/:user_id/:user_banner.:format";
+		const CDN_ENDPOINT_USER_BANNER = "/banners/:user_id/:user_banner.:format";
 		
 		/**
 		 * Default User Avatar (PNG)
 		 * @var string
 		 */
-		const CDN_ENDPOINT_DEFAULT_USER_AVATAR = "embed/avatars/:user_discriminator.png";
+		const CDN_ENDPOINT_DEFAULT_USER_AVATAR = "/embed/avatars/:user_discriminator.png";
 		
 		/**
 		 * User Avatar (PNG, JPEG, WebP, GIF)
 		 * @var string
 		 */
-		const CDN_ENDPOINT_USER_AVATAR = "avatars/:user_id/:user_avatar.:format";
+		const CDN_ENDPOINT_USER_AVATAR = "/avatars/:user_id/:user_avatar.:format";
 		
 		/**
 		 * Guild Member Avatar (PNG, JPEG, WebP, GIF)
 		 * @var string
 		 */
-		const CDN_ENDPOINT_GUILD_MEMBER_AVATAR = "guilds/:guild_id/users/:user_id/avatars/:member_avatar.:format";
+		const CDN_ENDPOINT_GUILD_MEMBER_AVATAR = "/guilds/:guild_id/users/:user_id/avatars/:member_avatar.:format";
 		
 		/**
 		 * Application Icon (PNG, JPEG, WebP)
 		 * @var string
 		 */
-		const CDN_ENDPOINT_APPLICATION_ICON = "app-icons/:application_id/:icon.:format";
+		const CDN_ENDPOINT_APPLICATION_ICON = "/app-icons/:application_id/:icon.:format";
 		
 		/**
 		 * Application Cover (PNG, JPEG, WebP)
 		 * @var string
 		 */
-		const CDN_ENDPOINT_APPLICATION_COVER = "app-icons/:application_id/:cover_image.:format";
+		const CDN_ENDPOINT_APPLICATION_COVER = "/app-icons/:application_id/:cover_image.:format";
 		
 		/**
 		 * Application Asset (PNG, JPEG, WebP)
 		 * @var string
 		 */
-		const CDN_ENDPOINT_APPLICATION_ASSET = "app-assets/:application_id/:asset_id.:format";
+		const CDN_ENDPOINT_APPLICATION_ASSET = "/app-assets/:application_id/:asset_id.:format";
 		
 		/**
 		 * Achievement Icon (PNG, JPEG, WebP)
 		 * @var string
 		 */
-		const CDN_ENDPOINT_ACHIEVEMENT_ICON = "app-assets/:application_id/achievements/:achievement_id/icons/:icon_hash.:format";
+		const CDN_ENDPOINT_ACHIEVEMENT_ICON = "/app-assets/:application_id/achievements/:achievement_id/icons/:icon_hash.:format";
 		
 		/**
 		 * Sticker Pack Banner (PNG, JPEG, WebP)
 		 * @var string
 		 */
-		const CDN_ENDPOINT_STICKER_PACK_BANNER = "app-assets/710982414301790216/store/:sticker_pack_banner_asset_id.:format";
+		const CDN_ENDPOINT_STICKER_PACK_BANNER = "/app-assets/710982414301790216/store/:sticker_pack_banner_asset_id.:format";
 		
 		/**
 		 * Team Icon (PNG, JPEG, WebP)
 		 * @var string
 		 */
-		const CDN_ENDPOINT_TEAM_ICON = "team-icons/:team_id/:team_icon.:format";
+		const CDN_ENDPOINT_TEAM_ICON = "/team-icons/:team_id/:team_icon.:format";
 		
 		/**
 		 * Sticker (PNG, Lottie)
 		 * @var string
 		 */
-		const CDN_ENDPOINT_STICKER = "stickers/:sticker_id.:format";
+		const CDN_ENDPOINT_STICKER = "/stickers/:sticker_id.:format";
 		
 		/**
 		 * Role Icon (PNG, JPEG, WebP)
 		 * @var string
 		 */
-		const CDN_ENDPOINT_ROLE_ICON = "role-icons/:role_id/:role_icon.:format";
+		const CDN_ENDPOINT_ROLE_ICON = "/role-icons/:role_id/:role_icon.:format";
 
 		/**
 		 * @var \Discorderly\Resource\Application Application instance storage
@@ -321,7 +327,6 @@
 				"client_secret" => $this->authorization["client_secret"],
 			]));
 		}
-
 
 		/**
 		 * Handle a Discord Webhook interaction

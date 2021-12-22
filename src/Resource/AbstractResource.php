@@ -4,12 +4,6 @@
 
 	abstract class AbstractResource extends \Discorderly\Resource\AbstractStaticResource {
 		/**
-		 * Whether the data for this instance has been fetched already
-		 * @var bool
-		 */
-		protected bool $dirty = false;
-
-		/**
 		 * The object's unique ID
 		 * @var int
 		 */
@@ -38,6 +32,10 @@
 		 * @return static           The new instance
 		 */
 		public function create(...$arguments) : static {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
 			$endpoint = $arguments["endpoint"] ?? "";
 
 			unset($arguments["endpoint"]);
@@ -63,6 +61,10 @@
 		 * @return bool
 		 */
 		public function delete(...$arguments) : bool {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
 			if (empty($this->id ?? 0)) {
 				throw new \Discorderly\Response\Exception("You must supply a unique ID (id) when using " . \get_called_class() . "::__construct()");
 			}
@@ -128,6 +130,10 @@
 		 * @return self                 The updated instance
 		 */
 		public function modify(...$arguments) : self {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
 			$endpoint = $arguments["endpoint"] ?? "";
 
 			unset($arguments["endpoint"]);
@@ -141,31 +147,5 @@
 			$this->__populate($response);
 
 			return $this;
-		}
-
-		/**
-		 * Property getter
-		 * @param  string $method    Method name
-		 * @param  array  $arguments Method arguments
-		 * @return mixed             Property value
-		 */
-		public function __call(string $method, array $arguments = []) : mixed {
-			if (\preg_match("/^get([a-zA-Z]+)$/i", $method, $property)) {
-				$property = \strtolower(\preg_replace(["/([a-z\d])([A-Z])/", "/([^_])([A-Z][a-z])/"], "$1_$2", $property[1]));
-
-				if (\property_exists($this, $property)) {
-					$this->get();
-
-					return $this->{$property} ?? NULL;
-				}
-
-				else {
-					throw new \Discorderly\Response\Exception("Undefined property: \\" . \get_called_class() . "::" . $property);
-				}
-
-				return NULL;
-			}
-
-			throw new \Discorderly\Response\Exception("Call to undefined method \\" . \get_called_class() . "::" . $method . "()");
 		}
 	}

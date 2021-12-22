@@ -11,6 +11,10 @@
 		 * @return self
 		 */
 		public function addRecipient(...$arguments) : self {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
 			if (empty($this->id ?? 0)) {
 				throw new \Discorderly\Response\Exception("You must supply a Channel ID (id) when using " . \get_called_class() . "::__construct()");
 			}
@@ -38,6 +42,10 @@
 		 * @return self
 		 */
 		public function removeRecipient(int $user_id) : self {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
 			if (empty($this->id ?? 0)) {
 				throw new \Discorderly\Response\Exception("You must supply a Channel ID (id) when using " . \get_called_class() . "::__construct()");
 			}

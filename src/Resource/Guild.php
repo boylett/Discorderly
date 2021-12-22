@@ -340,14 +340,26 @@
 		 */
 		public function __populate(array $properties) : self {
 			foreach ($properties["emojis"] ?? [] as $index => $emoji) {
+				if (!isset($this->parent)) {
+					throw new \Discorderly\Response\OrphanedInstanceException();
+				}
+
 				$properties["emojis"][$index] = $this->parent->Emoji($emoji["id"])->__populate($emoji);
 			}
 
 			foreach ($properties["roles"] ?? [] as $index => $role) {
+				if (!isset($this->parent)) {
+					throw new \Discorderly\Response\OrphanedInstanceException();
+				}
+
 				$properties["roles"][$index] = $this->parent->Role($role["id"])->__populate($role);
 			}
 
 			foreach ($properties["stickers"] ?? [] as $index => $sticker) {
+				if (!isset($this->parent)) {
+					throw new \Discorderly\Response\OrphanedInstanceException();
+				}
+
 				$properties["stickers"][$index] = $this->parent->Sticker($sticker["id"])->__populate($sticker);
 			}
 
@@ -365,6 +377,10 @@
 		 * @return \Discorderly\Resource\Member
 		 */
 		public function addMember(...$arguments) : \Discorderly\Resource\Member {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
 			if (empty($arguments["user_id"] ?? 0)) {
 				throw new \Discorderly\Response\Exception("You must supply a User ID (user_id) when using " . \get_called_class() . "::addMember()");
 			}
@@ -429,6 +445,10 @@
 			}
 
 			if (empty($this->channels ?? [])) {
+				if (!isset($this->parent)) {
+					throw new \Discorderly\Response\OrphanedInstanceException();
+				}
+
 				$channels = $this->parent->request(
 					endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . $this->id . "/channels",
 					type:     "get",
@@ -458,6 +478,10 @@
 		 */
 		public function getEmoji(...$arguments) : NULL|\Discorderly\Resource\Emoji {
 			if (\count($arguments) === 1 and (isset($arguments["id"]) or \array_keys($arguments) === [0])) {
+				if (!isset($this->parent)) {
+					throw new \Discorderly\Response\OrphanedInstanceException();
+				}
+
 				$emoji = $this->parent->request(
 					endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . $this->id . "/emojis/" . ($arguments["id"] ?? $arguments[0]),
 					type:     "get",
@@ -480,6 +504,10 @@
 		 * @return array
 		 */
 		public function getMembers() : array {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
 			$members = $this->parent->request(
 				endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . $this->id . "/members",
 				type:     "get",
@@ -494,6 +522,10 @@
 		 * @return \Discorderly\Resource\Member
 		 */
 		public function getMember(int $user_id) : \Discorderly\Resource\Member {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
 			$member = $this->parent->request(
 				endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . $this->id . "/members/" . $user_id,
 				type:     "get",
@@ -507,6 +539,10 @@
 		 * @return array
 		 */
 		public function getInvites() : array {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
 			$invites = $this->parent->request(
 				endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . $this->id . "/invites",
 				type:     "get",
@@ -521,6 +557,10 @@
 		 */
 		public function getPreview() : \Discorderly\Resource\GuildPreview {
 			if (empty($this->preview ?? NULL)) {
+				if (!isset($this->parent)) {
+					throw new \Discorderly\Response\OrphanedInstanceException();
+				}
+
 				$preview = $this->parent->request(
 					endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . $this->id . "/preview",
 					type:     "get",
@@ -568,6 +608,10 @@
 			}
 
 			if (empty($this->threads ?? [])) {
+				if (!isset($this->parent)) {
+					throw new \Discorderly\Response\OrphanedInstanceException();
+				}
+
 				$this->threads = $this->parent->request(
 					endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . $this->id . "/threads/active",
 					type:     "get",
@@ -606,6 +650,10 @@
 		 * @return self
 		 */
 		public function modifyChannelPosition(...$arguments) : self {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
 			if (empty($arguments["id"] ?? 0)) {
 				throw new \Discorderly\Response\Exception("You must supply a Channel ID (id) when using " . \get_called_class() . "::modifyChannelPositions()");
 			}
@@ -628,6 +676,10 @@
 		 * @return \Discorderly\Resource\Member
 		 */
 		public function modifyMember(...$arguments) : \Discorderly\Resource\Member {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
 			if (empty($arguments["user_id"] ?? 0)) {
 				throw new \Discorderly\Response\Exception("You must supply a User ID (user_id) when using " . \get_called_class() . "::modifyMember()");
 			}
@@ -651,6 +703,10 @@
 		 * @return bool
 		 */
 		public function removeMember(int $user_id) : bool {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
 			if (empty($this->parent->request(
 				endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . $this->id . "/members/" . $user_id,
 				type:     "delete",
@@ -667,6 +723,10 @@
 		 */
 		public function getVanityUrl() : string {
 			if (!isset($this->vanity_url)) {
+				if (!isset($this->parent)) {
+					throw new \Discorderly\Response\OrphanedInstanceException();
+				}
+
 				$invite = $this->parent->request(
 					endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . $this->id . "/vanity-url",
 					type:     "get",

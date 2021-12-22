@@ -52,6 +52,10 @@
 		 */
 		public function __populate(array $properties) : self {
 			foreach ($properties["stickers"] ?? [] as $index => $sticker) {
+				if (!isset($this->parent)) {
+					throw new \Discorderly\Response\OrphanedInstanceException();
+				}
+
 				$properties["stickers"][$index] = $this->parent->Sticker($sticker["id"])->__populate($sticker);
 			}
 

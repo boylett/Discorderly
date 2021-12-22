@@ -4,6 +4,12 @@
 
 	abstract class AbstractStaticResource {
 		/**
+		 * Whether the data for this instance has been fetched already
+		 * @var bool
+		 */
+		protected bool $dirty = false;
+
+		/**
 		 * Instance cache
 		 * @var array
 		 */
@@ -20,6 +26,30 @@
 		 */
 		public function __construct(...$arguments) {
 			$this->__populate($arguments);
+		}
+
+		/**
+		 * Property getter
+		 * @param  string $method    Method name
+		 * @param  array  $arguments Method arguments
+		 * @return mixed             Property value
+		 */
+		public function __call(string $method, array $arguments = []) : mixed {
+			if (\preg_match("/^get([a-zA-Z]+)$/i", $method, $property)) {
+				$property = \strtolower(\preg_replace(["/([a-z\d])([A-Z])/", "/([^_])([A-Z][a-z])/"], "$1_$2", $property[1]));
+
+				if (\property_exists($this, $property)) {
+					return $this->{$property} ?? NULL;
+				}
+
+				else {
+					throw new \Discorderly\Response\Exception("Undefined property: \\" . \get_called_class() . "::" . $property);
+				}
+
+				return NULL;
+			}
+
+			throw new \Discorderly\Response\Exception("Call to undefined method \\" . \get_called_class() . "::" . $method . "()");
 		}
 
 		/**
@@ -148,7 +178,6 @@
 				}
 
 				if (!\in_array($property, [
-					"dirty",
 					"endpoint",
 					"parent",
 				])) {
@@ -173,6 +202,8 @@
 		 */
 		public function export(array|NULL $keys = NULL) : array {
 			$array = $this->__toArray();
+
+			unset($array["dirty"]);
 
 			if ($keys !== NULL) {
 				$export = [];

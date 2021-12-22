@@ -130,11 +130,41 @@
 		public NULL|array $voice_regions = [];
 
 		/**
+		 * Get the Application's cover image URL
+		 * @param  string $format Image format (gif, jpg, jpeg, json, png or webm)
+		 * @return string
+		 */
+		public function getCoverUrl(string $format = "png") : string {
+			return \Discorderly\Discorderly::CDN_ENDPOINT . \strtr(\Discorderly\Discorderly::CDN_ENDPOINT_APPLICATION_COVER, [
+				":application_id" => $this->getId(),
+				":cover_image"    => $this->getCoverImage(),
+				":format"         => $format,
+			]);
+		}
+
+		/**
+		 * Get the Application's icon URL
+		 * @param  string $format Image format (gif, jpg, jpeg, json, png or webm)
+		 * @return string
+		 */
+		public function getIconUrl(string $format = "png") : string {
+			return \Discorderly\Discorderly::CDN_ENDPOINT . \strtr(\Discorderly\Discorderly::CDN_ENDPOINT_APPLICATION_ICON, [
+				":application_id" => $this->getId(),
+				":icon"           => $this->getIcon(),
+				":format"         => $format,
+			]);
+		}
+
+		/**
 		 * Returns the list of sticker packs available to Nitro subscribers
 		 * @return array
 		 */
 		public function getStickerPacks() : array {
 			if (empty($this->sticker_packs)) {
+				if (!isset($this->parent)) {
+					throw new \Discorderly\Response\OrphanedInstanceException();
+				}
+
 				$sticker_packs = $this->parent->request(
 					endpoint: \Discorderly\Discorderly::endpoint . "/sticker-packs",
 					type:     "get",
@@ -152,6 +182,10 @@
 		 */
 		public function getVoiceRegions() : array {
 			if (empty($this->voice_regions)) {
+				if (!isset($this->parent)) {
+					throw new \Discorderly\Response\OrphanedInstanceException();
+				}
+
 				$regions = $this->parent->request(
 					endpoint: \Discorderly\Discorderly::endpoint . "/voice/regions",
 					type:     "get",

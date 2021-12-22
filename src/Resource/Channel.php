@@ -265,6 +265,10 @@
 			}
 
 			foreach ($properties["recipients"] ?? [] as $index => $user) {
+				if (!isset($this->parent)) {
+					throw new \Discorderly\Response\OrphanedInstanceException();
+				}
+
 				$properties["recipients"][$index] = $this->parent->User($user["id"])->__populate($user);
 			}
 
@@ -281,6 +285,10 @@
 		 * @return self
 		 */
 		public function bulkDeleteMessages(array $messages) : self {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
 			$this->parent->request(
 				endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . $this->id . "/messages/bulk-delete",
 				type:     "post",
@@ -304,6 +312,10 @@
 		 * @return \Discorderly\Resource\Invite
 		 */
 		public function createInvite(...$arguments) : \Discorderly\Resource\Invite {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
 			$invite = $this->parent->request(
 				endpoint:   \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . $this->id . "/invites",
 				type:       "post",
@@ -329,6 +341,10 @@
 		 * @return \Discorderly\Resources\Thread                        New Thread instance
 		 */
 		public function createThread(...$arguments) : self {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
 			if (empty($arguments["name"] ?? false)) {
 				throw new \Discorderly\Response\Exception("You must supply a Thread Name (name) when using " . \get_called_class() . "::createThread()");
 			}
@@ -380,6 +396,10 @@
 			switch ($this->type) {
 				case static::CHANNEL_TYPE_DM:
 				case static::CHANNEL_TYPE_GROUP_DM: {
+					if (!isset($this->parent)) {
+						throw new \Discorderly\Response\OrphanedInstanceException();
+					}
+
 					return $this->parent->DM($this->id)->__populate((array) $this);
 				}
 
@@ -388,6 +408,10 @@
 				case static::CHANNEL_TYPE_GUILD_NEWS_THREAD:
 				case static::CHANNEL_TYPE_GUILD_PUBLIC_THREAD:
 				case static::CHANNEL_TYPE_GUILD_PRIVATE_THREAD: {
+					if (!isset($this->parent)) {
+						throw new \Discorderly\Response\OrphanedInstanceException();
+					}
+
 					return $this->parent->Thread($this->id)->__populate((array) $this);
 				}
 
@@ -402,6 +426,10 @@
 		 * @return array
 		 */
 		public function getInvites() : array {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
 			$invites = $this->parent->request(
 				endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . $this->id . "/invites",
 				type:     "get",
@@ -419,6 +447,10 @@
 		 * @return array         Array of Message objects
 		 */
 		public function getMessages(...$arguments) : array {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
 			if (empty($this->id ?? 0)) {
 				throw new \Discorderly\Response\Exception("You must supply a Channel ID (id) when using " . \get_called_class() . "::__construct()");
 			}
@@ -437,6 +469,10 @@
 		 * @return \Discorderly\Resource\Message
 		 */
 		public function getMessage(int $message_id) : \Discorderly\Resource\Message {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
 			$message = $this->parent->request(
 				endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . $this->id . "/messages/" . $message_id,
 				type:     "get",
@@ -450,6 +486,10 @@
 		 * @return array Array of Message objects
 		 */
 		public function getPinnedMessages() : array {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
 			if (empty($this->id ?? 0)) {
 				throw new \Discorderly\Response\Exception("You must supply a Channel ID (id) when using " . \get_called_class() . "::__construct()");
 			}
@@ -481,6 +521,10 @@
 		 * @return self
 		 */
 		public function pinMessage(int $message_id, bool $silent = false) : self {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
 			if (empty($this->id ?? 0)) {
 				throw new \Discorderly\Response\Exception("You must supply a Channel ID (id) when using " . \get_called_class() . "::__construct()");
 			}
@@ -514,6 +558,10 @@
 		 * @return self
 		 */
 		public function typing() : self {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
 			$this->parent->request(
 				endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . $this->id . "/typing",
 				type:     "post",
@@ -528,6 +576,10 @@
 		 * @return self
 		 */
 		public function unpinMessage(int $message_id) : self {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
 			$this->parent->request(
 				endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . $this->id . "/pins/" . $message_id,
 				type:     "delete",

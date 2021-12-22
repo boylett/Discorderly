@@ -2,6 +2,8 @@
 
 	require_once __DIR__ . "/../vendor/autoload.php";
 
+	\header("Content-Type: text/plain");
+
 	$config  = include __DIR__ . "/config.php";
 	$discord = new \Discorderly\Discorderly();
 

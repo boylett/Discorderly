@@ -63,6 +63,10 @@
 		 * @return static           The new instance
 		 */
 		public function create(...$arguments) : static {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
 			$response = $this->parent->request(
 				endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint,
 				type:     "post",
