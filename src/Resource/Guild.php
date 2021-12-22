@@ -468,6 +468,10 @@
 		public function getChannel(...$arguments) : NULL|\Discorderly\Resource\Channel {
 			$channels = \Discorderly\Discorderly::array_find($this->getChannels(), $arguments);
 
+			if (isset($this->parent)) {
+				$channels = \array_map(fn($channel) => $this->parent->adopt($channel), $channels);
+			}
+
 			return \reset($channels) ?: NULL;
 		}
 
@@ -492,6 +496,10 @@
 
 			else {
 				$emojis = \Discorderly\Discorderly::array_find($this->getEmojis(), $arguments);
+
+				if (isset($this->parent)) {
+					$emojis = \array_map(fn($emoji) => $this->parent->adopt($emoji), $emojis);
+				}
 
 				return \reset($emojis) ?: NULL;
 			}
@@ -584,6 +592,10 @@
 		public function getRole(...$arguments) : NULL|\Discorderly\Resource\Role {
 			$roles = \Discorderly\Discorderly::array_find($this->getRoles(), $arguments);
 
+			if (isset($this->parent)) {
+				$roles = \array_map(fn($role) => $this->parent->adopt($role), $roles);
+			}
+
 			return \reset($roles) ?: NULL;
 		}
 
@@ -594,6 +606,10 @@
 		 */
 		public function getSticker(...$arguments) : NULL|\Discorderly\Resource\Sticker {
 			$stickers = \Discorderly\Discorderly::array_find($this->getStickers(), $arguments);
+
+			if (isset($this->parent)) {
+				$stickers = \array_map(fn($sticker) => $this->parent->adopt($sticker), $stickers);
+			}
 
 			return \reset($stickers) ?: NULL;
 		}

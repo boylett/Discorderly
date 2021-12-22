@@ -64,7 +64,13 @@
 				$contenders = \Discorderly\Discorderly::array_find(static::$discorderly_instance_cache[$class] ?? [], $arguments);
 
 				if (!empty($contenders)) {
-					return \reset($contenders);
+					$instance = \reset($contenders);
+
+					if (isset($this->parent) and $instance instanceof \Discorderly\Response\AbstractStaticResource) {
+						$this->parent->adopt($instance);
+					}
+
+					return $instance;
 				}
 			}
 
