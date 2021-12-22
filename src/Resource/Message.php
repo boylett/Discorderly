@@ -423,6 +423,37 @@
 		}
 
 		/**
+		 * Creates a new reply message
+		 * @param  string                        $content           The message contents (up to 2000 characters)
+		 * @param  bool                          $tts               True if this is a TTS message
+		 * @param  array                         $embeds            Embedded rich content (up to 6000 characters)
+		 * @param  array                         $allowed_mentions  Allowed mentions for the message
+		 * @param  array                         $components        The components to include with the message
+		 * @param  array                         $sticker_ids       IDs of up to 3 stickers in the server to send in the message
+		 * @param  array                         $files             The contents of the file being sent
+		 * @param  string                        $payload_json      JSON encoded body of non-file params
+		 * @param  array                         $attachments       Attachment objects with filename and description
+		 * @return \Discorderly\Resource\Message                    Message object
+		 */
+		public function createReply(...$arguments) : \Discorderly\Resource\Message {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
+			$message = $this->parent->request(
+				endpoint: \Discorderly\Discorderly::endpoint . \strtr($this->endpoint, [ ":channel_id" => $this->channel_id ]),
+				type:     "post",
+				data:     \array_merge($arguments, [
+					"message_reference" => [
+						"message_id" => $this->id,
+					],
+				]),
+			);
+
+			return $this->parent->Message($message["id"])->__populate($message);
+		}
+
+		/**
 		 * Delete this instance
 		 * @return bool
 		 */

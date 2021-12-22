@@ -331,6 +331,34 @@
 		}
 
 		/**
+		 * Creates a new message
+		 * @param  string                        $content           The message contents (up to 2000 characters)
+		 * @param  bool                          $tts               True if this is a TTS message
+		 * @param  array                         $embeds            Embedded rich content (up to 6000 characters)
+		 * @param  array                         $allowed_mentions  Allowed mentions for the message
+		 * @param  array                         $message_reference Include to make your message a reply
+		 * @param  array                         $components        The components to include with the message
+		 * @param  array                         $sticker_ids       IDs of up to 3 stickers in the server to send in the message
+		 * @param  array                         $files             The contents of the file being sent
+		 * @param  string                        $payload_json      JSON encoded body of non-file params
+		 * @param  array                         $attachments       Attachment objects with filename and description
+		 * @return \Discorderly\Resource\Message                    Message object
+		 */
+		public function createMessage(...$arguments) : \Discorderly\Resource\Message {
+			if (!isset($this->parent)) {
+				throw new \Discorderly\Response\OrphanedInstanceException();
+			}
+
+			$message = $this->parent->request(
+				endpoint: \Discorderly\Discorderly::endpoint . $this->endpoint . "/" . $this->id . "/messages",
+				type:     "post",
+				data:     $arguments,
+			);
+
+			return $this->parent->Message($message["id"])->__populate($message);
+		}
+
+		/**
 		 * Creates a new thread
 		 * @param  int                           $message_id            Message ID to connect the thread to
 		 * @param  string                        $name                  1-100 character channel name

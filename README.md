@@ -22,7 +22,6 @@ Documentation coming soon...
 - [ ] Guild()->getSplashUrl()
 - [ ] Guild()->removeMemberRole()
 - [ ] Guild()->searchMembers()
-- [ ] Message()->createReply()
 - [ ] Message()->deleteReactions()
 - [ ] Message()->getReactions()
 - [ ] Reaction()->create()
