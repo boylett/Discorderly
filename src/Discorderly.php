@@ -302,7 +302,7 @@
 			}
 
 			else if (\is_array($arguments["scope"] ?? "")) {
-				$arguments["scope"] = \implode(" ", \array_unique(\array_merge($arguments["scope"]), [ \Discorderly\Resource\AccessToken::SCOPE_IDENTIFY ]));
+				$arguments["scope"] = \implode(" ", \array_unique(\array_merge($arguments["scope"], [ \Discorderly\Resource\AccessToken::SCOPE_IDENTIFY ])));
 			}
 
 			else if (!\str_contains($arguments["scope"] ?? "", \Discorderly\Resource\AccessToken::SCOPE_IDENTIFY)) {
