@@ -1,3 +1,5 @@
 /examples/config.php
 /vendor/
 composer.lock
+.DS_Store
+*.sublime-*
